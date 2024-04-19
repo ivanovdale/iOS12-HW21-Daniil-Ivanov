@@ -115,12 +115,13 @@ final class MagicCardCell: UITableViewCell {
     // MARK: - Configure
 
     func configure(with card: Card) {
+        let placeholder = UIImage(systemName: "photo")?
+            .withRenderingMode(.alwaysOriginal)
+            .withTintColor(.white)
         if let imageUrl = card.imageUrl, let url = URL(string: imageUrl) {
-            image.setImage(url: url, placeholder: UIImage(systemName: "photo"))
+            image.setImage(url: url, placeholder: placeholder)
         } else {
-            image.image = UIImage(systemName: "photo")?
-                .withRenderingMode(.alwaysOriginal)
-                .withTintColor(.white)
+            image.image = placeholder
             // TODO: При быстром скролле все иконки становятся высотой 70
             image.snp.updateConstraints { make in
                 make.height.equalTo(70)
