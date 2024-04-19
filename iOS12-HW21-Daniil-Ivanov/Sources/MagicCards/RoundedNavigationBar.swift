@@ -8,7 +8,14 @@
 import UIKit
 import SnapKit
 
+typealias OptionalStringClosure = (String?) -> Void
+
 final class RoundedNavigationBar: UIView {
+
+    // Для реализации отложенного поиска.
+    private var searchTimer: Timer?
+
+    var onSearchTextFieldChanged: OptionalStringClosure?
 
     // MARK: - Outlets
 
@@ -41,9 +48,22 @@ final class RoundedNavigationBar: UIView {
 
         textField.setLeftPaddingPoints(10)
 
+        textField.addTarget(self, 
+                            action: #selector(textFieldDidChange(_:)),
+                            for: .editingChanged)
+
+        textField.delegate = self
+
         return textField
     }()
 
+    private lazy var cancelButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Cancel", for: .normal)
+        button.isHidden = true
+        button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+        return button
+    }()
 
     // MARK: - Init
 
@@ -61,7 +81,7 @@ final class RoundedNavigationBar: UIView {
     // MARK: - Setup
 
     private func setupHierarchy() {
-        [titleLabel, searchTextField].forEach { addSubview($0) }
+        [titleLabel, searchTextField, cancelButton].forEach { addSubview($0) }
     }
 
     private func setupLayout() {
@@ -73,8 +93,14 @@ final class RoundedNavigationBar: UIView {
         searchTextField.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(20)
             make.leading.equalToSuperview().offset(25)
-            make.trailing.equalToSuperview().offset(-25)
+//            make.trailing.equalToSuperview().offset(-25)
             make.height.equalTo(40)
+        }
+
+        cancelButton.snp.makeConstraints { make in
+            make.leading.equalTo(searchTextField.snp.trailing).offset(10)
+            make.centerY.equalTo(searchTextField.snp.centerY)
+            make.trailing.equalToSuperview().offset(-20)
         }
     }
 
@@ -84,5 +110,39 @@ final class RoundedNavigationBar: UIView {
         layer.cornerRadius = 25
         clipsToBounds = true
         layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+    }
+
+    // MARK: - Actions
+
+    @objc 
+    private func textFieldDidChange(_ textField: UITextField) {
+        self.searchTimer?.invalidate()
+
+        searchTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: false, block: { [weak self] timer in
+            self?.onSearchTextFieldChanged?(textField.text)
+        })
+    }
+
+    @objc
+    private func cancelButtonTapped() {
+        searchTextField.text = nil
+        onSearchTextFieldChanged?(nil)
+        cancelButton.isHidden = true
+    }
+}
+
+// MARK: - Extension
+
+// MARK: UITextFieldDelegate
+
+extension RoundedNavigationBar: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        cancelButton.isHidden = false
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        searchTextField.text = nil
+        onSearchTextFieldChanged?(nil)
+        cancelButton.isHidden = true
     }
 }

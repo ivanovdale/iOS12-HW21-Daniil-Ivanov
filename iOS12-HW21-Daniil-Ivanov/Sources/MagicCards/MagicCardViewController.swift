@@ -27,7 +27,11 @@ final class MagicCardsViewController: UIViewController {
     
     // MARK: - Outlets
 
-    private lazy var navigationBar = RoundedNavigationBar()
+    private lazy var navigationBar: RoundedNavigationBar = {
+        let navigationBar = RoundedNavigationBar()
+        navigationBar.onSearchTextFieldChanged = onSearchTextFieldChanged(text:)
+        return navigationBar
+    }()
 
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
@@ -76,12 +80,20 @@ final class MagicCardsViewController: UIViewController {
 
     private func setupView() {
         view.backgroundColor = UIColor(red: 49 / 255, green: 49 / 255, blue: 49 / 255, alpha: 1)
+
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(tap))
+        view.addGestureRecognizer(gesture)
+    }
+
+    @objc
+    func tap(sender: UITapGestureRecognizer){
+        view.endEditing(true)
     }
 
     // MARK: - Data fetching
 
-    private func fetchCards() {
-        magicCardsService.getCards { result in
+    private func fetchCards(by name: String? = nil) {
+        let completion: ObjectEndpointCompletion<Cards> = { result in
             switch result {
             case .success(let result):
                 DispatchQueue.main.async { [weak self] in
@@ -95,10 +107,24 @@ final class MagicCardsViewController: UIViewController {
                 }
             }
         }
+
+        if let name, !name.isEmpty {
+            magicCardsService.getCardsByName(name: name, completion: completion)
+        } else {
+            magicCardsService.getCards(completion: completion)
+        }
     }
 }
 
 // MARK: - Extensions
+
+// MARK: SearchTextField change handler
+
+extension MagicCardsViewController {
+    func onSearchTextFieldChanged(text: String?) {
+        fetchCards(by: text)
+    }
+}
 
 // MARK: UITableViewDataSource
 
