@@ -35,10 +35,11 @@ final class MagicCardsViewController: UIViewController {
         tableView.delegate = self
         tableView.register(MagicCardCell.self,
                            forCellReuseIdentifier: MagicCardCell.identifier)
-        tableView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
         tableView.backgroundColor = .clear
         tableView.rowHeight = UITableView.automaticDimension
         tableView.showsVerticalScrollIndicator = false
+        tableView.sectionHeaderTopPadding = 0
         return tableView
     }()
 
