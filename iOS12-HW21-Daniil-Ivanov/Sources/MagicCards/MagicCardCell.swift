@@ -77,14 +77,10 @@ final class MagicCardCell: UITableViewCell {
     }
 
     private func setupLayout() {
-        // TODO: Здесь проблемы с констрейнтами. Высота конфликтует с top и bottom.
-        // Без привязок к верху и низу теряется вычисление высоты ячейки...
         image.snp.makeConstraints { make in
             make.leading.equalTo(contentView).offset(10)
             make.top.equalTo(contentView).inset(10)
             make.bottom.equalTo(contentView).inset(10)
-
-            make.height.equalTo(150)
             make.width.equalTo(100)
         }
 
@@ -122,10 +118,6 @@ final class MagicCardCell: UITableViewCell {
             image.setImage(url: url, placeholder: placeholder)
         } else {
             image.image = placeholder
-            // TODO: При быстром скролле все иконки становятся высотой 70
-            image.snp.updateConstraints { make in
-                make.height.equalTo(70)
-            }
         }
 
         title.text = card.name
