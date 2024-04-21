@@ -58,6 +58,9 @@ final class RoundedNavigationBar: UIView {
         searchBar.barTintColor = backgroundColor
         searchBar.tintColor = .white
 
+        // Красим _UISearchBarSearchContainerView, иначе появляются странные чёрные полосы.
+        searchBar.subviews.first?.subviews.last?.backgroundColor = backgroundColor
+
         // MARK: Add handler for editing changed
 
         textField.addTarget(self,
