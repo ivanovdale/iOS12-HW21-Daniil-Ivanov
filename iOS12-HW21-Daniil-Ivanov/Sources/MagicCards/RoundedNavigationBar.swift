@@ -27,42 +27,44 @@ final class RoundedNavigationBar: UIView {
         return label
     }()
 
-    private lazy var searchTextField: UITextField = {
-        let textField = UITextField()
-        textField.layer.cornerRadius = 40 / 2
-        textField.backgroundColor = UIColor(red: 49 / 255, green: 49 / 255, blue: 49 / 255, alpha: 1)
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.delegate = self
 
-        let color = UIColor(red: 188 / 255, green: 188 / 255, blue: 188 / 255, alpha: 1)
-        textField.textColor = color
+        let backgroundColor = UIColor(red: 22 / 255, green: 22 / 255, blue: 22 / 255, alpha: 1)
+        let textColor = UIColor(red: 188 / 255, green: 188 / 255, blue: 188 / 255, alpha: 1)
+        let textFieldBackgroundColor = UIColor(red: 49 / 255, green: 49 / 255, blue: 49 / 255, alpha: 1)
 
-        let centeredParagraphStyle = NSMutableParagraphStyle()
-        centeredParagraphStyle.alignment = .center
-        let placeHolderAttributes = [NSAttributedString.Key.foregroundColor: color,
-                                     .paragraphStyle: centeredParagraphStyle]
+        // MARK: TextField styling
+
+        let textField = searchBar.searchTextField
+        let placeHolderAttributes = [NSAttributedString.Key.foregroundColor: textColor]
         textField.attributedPlaceholder = NSAttributedString(string: "Find a magic card",
                                                              attributes: placeHolderAttributes)
 
-        let leftAlignedParagraphStyle = NSMutableParagraphStyle()
-        leftAlignedParagraphStyle.alignment = .left
-        let textAttributes = [NSAttributedString.Key.paragraphStyle: leftAlignedParagraphStyle]
+        textField.textColor = textColor
+        textField.backgroundColor = textFieldBackgroundColor
 
-        textField.setLeftPaddingPoints(10)
+        textField.leftView?.tintColor = .white
+        if let clearButton = textField.value(forKey: "clearButton") as? UIButton {
+            let image = clearButton.imageView?.image?.withRenderingMode(.alwaysTemplate)
+            clearButton.setImage(image, for: .normal)
+            clearButton.tintColor = UIColor.white
+        }
 
-        textField.addTarget(self, 
-                            action: #selector(textFieldDidChange(_:)),
+        // MARK: SearchBar styling
+
+        searchBar.backgroundColor = backgroundColor
+        searchBar.barTintColor = backgroundColor
+        searchBar.tintColor = .white
+
+        // MARK: Add handler for editing changed
+
+        textField.addTarget(self,
+                            action: #selector(searchBarTextFieldDidChange(_:)),
                             for: .editingChanged)
 
-        textField.delegate = self
-
-        return textField
-    }()
-
-    private lazy var cancelButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Cancel", for: .normal)
-        button.isHidden = true
-        button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
-        return button
+        return searchBar
     }()
 
     // MARK: - Init
@@ -81,7 +83,7 @@ final class RoundedNavigationBar: UIView {
     // MARK: - Setup
 
     private func setupHierarchy() {
-        [titleLabel, searchTextField, cancelButton].forEach { addSubview($0) }
+        [titleLabel, searchBar].forEach { addSubview($0) }
     }
 
     private func setupLayout() {
@@ -90,17 +92,11 @@ final class RoundedNavigationBar: UIView {
             make.top.equalToSuperview().offset(26)
         }
 
-        searchTextField.snp.makeConstraints { make in
+        searchBar.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(20)
-            make.leading.equalToSuperview().offset(25)
-//            make.trailing.equalToSuperview().offset(-25)
-            make.height.equalTo(40)
-        }
-
-        cancelButton.snp.makeConstraints { make in
-            make.leading.equalTo(searchTextField.snp.trailing).offset(10)
-            make.centerY.equalTo(searchTextField.snp.centerY)
+            make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
+            make.height.equalTo(40)
         }
     }
 
@@ -115,34 +111,36 @@ final class RoundedNavigationBar: UIView {
     // MARK: - Actions
 
     @objc 
-    private func textFieldDidChange(_ textField: UITextField) {
+    private func searchBarTextFieldDidChange(_ textField: UITextField) {
         self.searchTimer?.invalidate()
 
         searchTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: false, block: { [weak self] timer in
             self?.onSearchTextFieldChanged?(textField.text)
         })
     }
-
-    @objc
-    private func cancelButtonTapped() {
-        searchTextField.text = nil
-        onSearchTextFieldChanged?(nil)
-        cancelButton.isHidden = true
-    }
 }
 
 // MARK: - Extension
 
-// MARK: UITextFieldDelegate
+// MARK: UISearchBarDelegate
 
-extension RoundedNavigationBar: UITextFieldDelegate {
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        cancelButton.isHidden = false
+extension RoundedNavigationBar: UISearchBarDelegate {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = true
     }
 
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        searchTextField.text = nil
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        onSearchTextFieldChanged?(searchBar.text)
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.searchTextField.text = nil
+        searchBar.searchTextField.endEditing(true)
         onSearchTextFieldChanged?(nil)
-        cancelButton.isHidden = true
+        searchBar.showsCancelButton = false
     }
 }
