@@ -102,9 +102,27 @@ final class MagicCardsViewController: UIViewController {
                     self.cards = result.cards
                     self.tableView.reloadData()
                 }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    print(error)
+            case .failure(_):
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    let alert = UIAlertController(title: "Alert",
+                                                  message: "Error occured while loading cards",
+                                                  preferredStyle: .alert)
+                    let alertActionHandler = { (action: UIAlertAction) in
+                        switch action.style {
+                            case .default:
+                            self.fetchCards()
+                        case .cancel, .destructive:
+                            fatalError()
+                        @unknown default:
+                            fatalError()
+                        }
+                    }
+                    let alertAction = UIAlertAction(title: "Reload",
+                                                    style: .default,
+                                                    handler: alertActionHandler)
+                    alert.addAction(alertAction)
+                    self.present(alert, animated: true, completion: nil)
                 }
             }
         }

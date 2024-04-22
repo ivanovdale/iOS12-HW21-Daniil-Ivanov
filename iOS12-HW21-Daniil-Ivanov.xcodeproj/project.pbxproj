@@ -24,6 +24,8 @@
 		0019F6CB2BD26472000D7DCF /* UITextField+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0019F6CA2BD26472000D7DCF /* UITextField+Ext.swift */; };
 		0019F6CD2BD2841E000D7DCF /* MagicCardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0019F6CC2BD2841E000D7DCF /* MagicCardCell.swift */; };
 		0019F6CF2BD2877A000D7DCF /* UIImageView+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0019F6CE2BD2877A000D7DCF /* UIImageView+Ext.swift */; };
+		0058C9FC2BD58D8500006819 /* SnapKit-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 0058C9FB2BD58D8500006819 /* SnapKit-Dynamic */; };
+		0058C9FF2BD6BEB900006819 /* MagicCardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0058C9FE2BD6BEB900006819 /* MagicCardDetailsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +45,7 @@
 		0019F6CA2BD26472000D7DCF /* UITextField+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+Ext.swift"; sourceTree = "<group>"; };
 		0019F6CC2BD2841E000D7DCF /* MagicCardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagicCardCell.swift; sourceTree = "<group>"; };
 		0019F6CE2BD2877A000D7DCF /* UIImageView+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+Ext.swift"; sourceTree = "<group>"; };
+		0058C9FE2BD6BEB900006819 /* MagicCardDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagicCardDetailsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +56,7 @@
 				0019F6C82BD25E76000D7DCF /* SnapKit in Frameworks */,
 				0019F6A02BD0082E000D7DCF /* Alamofire in Frameworks */,
 				0019F6A22BD008F1000D7DCF /* AlamofireDynamic in Frameworks */,
+				0058C9FC2BD58D8500006819 /* SnapKit-Dynamic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +92,7 @@
 		0019F6902BD00493000D7DCF /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				0058C9FD2BD6B77900006819 /* MagicCardDetails */,
 				0019F6C92BD26463000D7DCF /* Extensions */,
 				0019F6B92BD00D42000D7DCF /* Model */,
 				0019F6B82BD00D3E000D7DCF /* Api */,
@@ -161,6 +166,14 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		0058C9FD2BD6B77900006819 /* MagicCardDetails */ = {
+			isa = PBXGroup;
+			children = (
+				0058C9FE2BD6BEB900006819 /* MagicCardDetailsViewController.swift */,
+			);
+			path = MagicCardDetails;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -181,6 +194,7 @@
 				0019F69F2BD0082E000D7DCF /* Alamofire */,
 				0019F6A12BD008F1000D7DCF /* AlamofireDynamic */,
 				0019F6C72BD25E76000D7DCF /* SnapKit */,
+				0058C9FB2BD58D8500006819 /* SnapKit-Dynamic */,
 			);
 			productName = "iOS12-HW21-Daniil-Ivanov";
 			productReference = 0019F6792BD00477000D7DCF /* iOS12-HW21-Daniil-Ivanov.app */;
@@ -240,6 +254,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0058C9FF2BD6BEB900006819 /* MagicCardDetailsViewController.swift in Sources */,
 				0019F6CF2BD2877A000D7DCF /* UIImageView+Ext.swift in Sources */,
 				0019F6C02BD00D55000D7DCF /* MagicCardsService.swift in Sources */,
 				0019F6CB2BD26472000D7DCF /* UITextField+Ext.swift in Sources */,
@@ -507,6 +522,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0019F6C62BD25E76000D7DCF /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		0058C9FB2BD58D8500006819 /* SnapKit-Dynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0019F6C62BD25E76000D7DCF /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = "SnapKit-Dynamic";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
