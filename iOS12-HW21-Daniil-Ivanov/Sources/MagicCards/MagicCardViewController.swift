@@ -81,12 +81,13 @@ final class MagicCardsViewController: UIViewController {
     private func setupView() {
         view.backgroundColor = UIColor(red: 49 / 255, green: 49 / 255, blue: 49 / 255, alpha: 1)
 
-        let gesture = UITapGestureRecognizer(target: self, action: #selector(tap))
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+        gesture.delegate = self
         view.addGestureRecognizer(gesture)
     }
 
     @objc
-    func tap(sender: UITapGestureRecognizer){
+    func viewTapped(sender: UITapGestureRecognizer){
         view.endEditing(true)
     }
 
@@ -162,6 +163,26 @@ extension MagicCardsViewController: UITableViewDataSource {
 
 extension MagicCardsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let magicCardDetailsViewController = MagicCardDetailsViewController()
+        let card = cards[indexPath.section]
+        magicCardDetailsViewController.configure(with: card)
+        present(magicCardDetailsViewController, animated: true)
+
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+// MARK: UIGestureRecognizerDelegate
+
+extension MagicCardsViewController: UIGestureRecognizerDelegate {
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if touch.view?.isDescendant(of: self.tableView) == true {
+            return false
+        } else {
+            guard let gestureRecognizer = gestureRecognizer as? UITapGestureRecognizer else { return false }
+            viewTapped(sender: gestureRecognizer)
+            return true
+        }
     }
 }
