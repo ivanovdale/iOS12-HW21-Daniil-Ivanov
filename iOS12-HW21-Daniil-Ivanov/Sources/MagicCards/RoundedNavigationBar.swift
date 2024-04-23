@@ -92,11 +92,11 @@ final class RoundedNavigationBar: UIView {
     private func setupLayout() {
         titleLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(26)
+            make.top.equalTo(self.safeAreaLayoutGuide).offset(5)
         }
 
         searchBar.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(20)
+            make.top.equalTo(titleLabel.snp.bottom).offset(15)
             make.leading.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-20)
             make.height.equalTo(40)

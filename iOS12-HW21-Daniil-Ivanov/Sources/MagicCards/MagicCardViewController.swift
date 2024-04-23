@@ -67,7 +67,7 @@ final class MagicCardsViewController: UIViewController {
     private func setupLayout() {
         navigationBar.snp.makeConstraints { make in
             make.leading.trailing.top.equalToSuperview()
-            make.height.equalTo(130)
+            make.height.equalTo(view.snp.height).multipliedBy(0.17)
         }
 
         tableView.snp.makeConstraints { make in
