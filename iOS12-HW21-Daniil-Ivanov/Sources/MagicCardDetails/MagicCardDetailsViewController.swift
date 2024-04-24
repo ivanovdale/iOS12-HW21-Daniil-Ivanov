@@ -14,7 +14,7 @@ class MagicCardDetailsViewController: UIViewController {
 
     private lazy var image: UIImageView = {
         let image = UIImageView()
-        image.contentMode = .scaleAspectFill
+        image.contentMode = .scaleAspectFit
         image.clipsToBounds = true
         return image
     }()
