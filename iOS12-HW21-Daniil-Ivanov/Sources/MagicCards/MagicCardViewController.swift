@@ -82,7 +82,7 @@ final class MagicCardsViewController: UIViewController {
         view.backgroundColor = UIColor(red: 49 / 255, green: 49 / 255, blue: 49 / 255, alpha: 1)
 
         let gesture = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
-        gesture.delegate = self
+        gesture.cancelsTouchesInView = false
         view.addGestureRecognizer(gesture)
     }
 
@@ -187,20 +187,5 @@ extension MagicCardsViewController: UITableViewDelegate {
         present(magicCardDetailsViewController, animated: true)
 
         tableView.deselectRow(at: indexPath, animated: true)
-    }
-}
-
-// MARK: UIGestureRecognizerDelegate
-
-extension MagicCardsViewController: UIGestureRecognizerDelegate {
-
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        if touch.view?.isDescendant(of: self.tableView) == true {
-            return false
-        } else {
-            guard let gestureRecognizer = gestureRecognizer as? UITapGestureRecognizer else { return false }
-            viewTapped(sender: gestureRecognizer)
-            return true
-        }
     }
 }
