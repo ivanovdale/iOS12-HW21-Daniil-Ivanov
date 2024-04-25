@@ -109,10 +109,13 @@ final class MagicCardCell: UITableViewCell {
     private func setupSkeletonableViews() {
         self.isSkeletonable = true
         contentView.isSkeletonable = true
+
         image.isSkeletonable = true
         title.isSkeletonable = true
-        typeRarity.isSkeletonable = true
-        setName.isSkeletonable = true
+
+        title.skeletonTextNumberOfLines = 3
+        title.linesCornerRadius = 5
+        image.skeletonCornerRadius = 20
     }
 
     // MARK: - Configure
@@ -121,7 +124,7 @@ final class MagicCardCell: UITableViewCell {
         let placeholder = UIImage(systemName: "photo")?
             .withRenderingMode(.alwaysOriginal)
             .withTintColor(.white)
-        if let imageUrl = card.imageUrl, 
+        if let imageUrl = card.imageUrl,
            let url = URL(string: imageUrl) {
             image.setImage(url: url, placeholder: placeholder)
         } else {
