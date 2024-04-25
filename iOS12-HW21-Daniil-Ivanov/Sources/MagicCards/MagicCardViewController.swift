@@ -6,13 +6,46 @@
 //
 
 import UIKit
+import SkeletonView
 
 final class MagicCardsViewController: UIViewController {
-    let magicCardsService: MagicCardsServiceProtocol
+
+    // MARK: - Controller state
+
+    private enum State {
+        case initial, success, loading, failure
+    }
+
+    private var state: State = .initial {
+        didSet {
+            switch (state) {
+            case .loading:
+                DispatchQueue.main.async { [weak self] in
+                    self?.startShimmerAnimation()
+                }
+                tableView.reloadData()
+            case .success, .failure:
+                stopShimmerAnimation()
+                tableView.reloadData()
+            case .initial:
+                break
+            }
+        }
+    }
+
+    // MARK: - Data service
+
+    private let magicCardsService: MagicCardsServiceProtocol
 
     // MARK: - Data
 
-    private var cards: [Card] = []
+    private var cards: [Card] = [] {
+        didSet {
+            if cards.count > 0 {
+                state = .success
+            }
+        }
+    }
 
     // MARK: - Init
 
@@ -44,6 +77,7 @@ final class MagicCardsViewController: UIViewController {
         tableView.rowHeight = 170
         tableView.showsVerticalScrollIndicator = false
         tableView.sectionHeaderTopPadding = 0
+        tableView.isSkeletonable = true
         return tableView
     }()
 
@@ -82,7 +116,7 @@ final class MagicCardsViewController: UIViewController {
         view.backgroundColor = UIColor(red: 49 / 255, green: 49 / 255, blue: 49 / 255, alpha: 1)
 
         let gesture = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
-        gesture.delegate = self
+        gesture.cancelsTouchesInView = false
         view.addGestureRecognizer(gesture)
     }
 
@@ -94,34 +128,21 @@ final class MagicCardsViewController: UIViewController {
     // MARK: - Data fetching
 
     private func fetchCards(by name: String? = nil) {
+        state = .loading
+
         let completion: ObjectEndpointCompletion<Cards> = { result in
             switch result {
             case .success(let result):
-                DispatchQueue.main.async { [weak self] in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
                     guard let self else { return }
                     self.cards = result.cards
-                    self.tableView.reloadData()
                 }
             case .failure(_):
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
-                    let alert = UIAlertController(title: "Alert",
-                                                  message: "Error occured while loading cards",
-                                                  preferredStyle: .alert)
-                    let alertActionHandler = { (action: UIAlertAction) in
-                        switch action.style {
-                            case .default:
-                            self.fetchCards()
-                        case .cancel, .destructive:
-                            fatalError()
-                        @unknown default:
-                            fatalError()
-                        }
-                    }
-                    let alertAction = UIAlertAction(title: "Reload",
-                                                    style: .default,
-                                                    handler: alertActionHandler)
-                    alert.addAction(alertAction)
+                    self.state = .failure
+
+                    let alert = configureErrorAlert()
                     self.present(alert, animated: true, completion: nil)
                 }
             }
@@ -132,6 +153,46 @@ final class MagicCardsViewController: UIViewController {
         } else {
             magicCardsService.getCards(completion: completion)
         }
+    }
+
+    // MARK: - Error alert configuration
+
+    private func configureErrorAlert() -> UIAlertController {
+        let alert = UIAlertController(title: "Alert",
+                                      message: "Error occured while loading cards",
+                                      preferredStyle: .alert)
+
+        let alertActionHandler = { (action: UIAlertAction) in
+            switch action.style {
+                case .default:
+                self.fetchCards()
+            case .cancel, .destructive:
+                fatalError()
+            @unknown default:
+                fatalError()
+            }
+        }
+        let alertAction = UIAlertAction(title: "Reload",
+                                        style: .default,
+                                        handler: alertActionHandler)
+        alert.addAction(alertAction)
+
+        return alert
+    }
+
+    // MARK: - Shimmer animation
+
+    private func startShimmerAnimation() {
+        let animation = SkeletonAnimationBuilder()
+            .makeSlidingAnimation(withDirection: .leftRight)
+        let color = UIColor(red: 0.882, green: 0.89, blue: 0.914, alpha: 1)
+        let gradient = SkeletonGradient(baseColor: color, secondaryColor: .white)
+
+        tableView.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
+    }
+
+    private func stopShimmerAnimation() {
+        tableView.hideSkeleton()
     }
 }
 
@@ -148,6 +209,9 @@ extension MagicCardsViewController {
 // MARK: UITableViewDataSource
 
 extension MagicCardsViewController: UITableViewDataSource {
+
+    // MARK: Header
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = UIView()
         headerView.backgroundColor = UIColor.clear
@@ -155,25 +219,36 @@ extension MagicCardsViewController: UITableViewDataSource {
         return headerView
     }
 
+    // Spacing between sections.
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        10
+    }
+
+    // MARK: Sections
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        switch (state) {
+        case .loading: return 5
+        case .success: return cards.count
+        case .initial, .failure: return 0
+        }
+    }
+
+    // MARK: Rows
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         1
     }
 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        cards.count
-    }
-
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: MagicCardCell.identifier, 
+        let cell = tableView.dequeueReusableCell(withIdentifier: MagicCardCell.identifier,
                                                  for: indexPath) as? MagicCardCell
-        guard let cell else { return MagicCardCell() }
+        guard let cell, state != .loading else { return MagicCardCell() }
+
         let card = cards[indexPath.section]
         cell.configure(with: card)
-        return cell
-    }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        10
+        return cell
     }
 }
 
@@ -187,20 +262,5 @@ extension MagicCardsViewController: UITableViewDelegate {
         present(magicCardDetailsViewController, animated: true)
 
         tableView.deselectRow(at: indexPath, animated: true)
-    }
-}
-
-// MARK: UIGestureRecognizerDelegate
-
-extension MagicCardsViewController: UIGestureRecognizerDelegate {
-
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        if touch.view?.isDescendant(of: self.tableView) == true {
-            return false
-        } else {
-            guard let gestureRecognizer = gestureRecognizer as? UITapGestureRecognizer else { return false }
-            viewTapped(sender: gestureRecognizer)
-            return true
-        }
     }
 }

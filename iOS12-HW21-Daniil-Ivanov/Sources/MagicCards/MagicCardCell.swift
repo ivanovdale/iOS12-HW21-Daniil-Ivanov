@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 final class MagicCardCell: UITableViewCell {
     static let identifier = "MagicCardCell"
@@ -26,15 +27,6 @@ final class MagicCardCell: UITableViewCell {
         label.textColor = .white
         label.textAlignment = .left
         return label
-    }()
-
-    private lazy var extraInfoStack: UIStackView = {
-        let spacer = UIView()
-        let stackView = UIStackView(arrangedSubviews: [typeRarity, setName, spacer])
-        stackView.setCustomSpacing(3, after: typeRarity)
-        stackView.axis = .vertical
-        stackView.distribution = .fill
-        return stackView
     }()
 
     private lazy var typeRarity: UILabel = {
@@ -64,6 +56,7 @@ final class MagicCardCell: UITableViewCell {
         setupHierarchy()
         setupLayout()
         setupContentView()
+        setupSkeletonableViews()
     }
     
     required init?(coder: NSCoder) {
@@ -73,7 +66,7 @@ final class MagicCardCell: UITableViewCell {
     // MARK: - Setup
 
     private func setupHierarchy() {
-        [image, title, extraInfoStack].forEach { contentView.addSubview($0) }
+        [image, title, typeRarity, setName].forEach { contentView.addSubview($0) }
     }
 
     private func setupLayout() {
@@ -90,11 +83,16 @@ final class MagicCardCell: UITableViewCell {
             make.trailing.equalTo(contentView).offset(-10)
         }
 
-        extraInfoStack.snp.makeConstraints { make in
+        typeRarity.snp.makeConstraints { make in
             make.leading.equalTo(image.snp.trailing).offset(10)
             make.top.equalTo(title.snp.bottom).offset(5)
             make.trailing.equalTo(contentView).offset(-10)
-            make.bottom.equalTo(contentView).offset(-10)
+        }
+
+        setName.snp.makeConstraints { make in
+            make.leading.equalTo(image.snp.trailing).offset(10)
+            make.top.equalTo(typeRarity.snp.bottom).offset(3)
+            make.trailing.equalTo(contentView).offset(-10)
         }
     }
 
@@ -108,13 +106,26 @@ final class MagicCardCell: UITableViewCell {
         self.selectedBackgroundView = backgroundView
     }
 
+    private func setupSkeletonableViews() {
+        self.isSkeletonable = true
+        contentView.isSkeletonable = true
+
+        image.isSkeletonable = true
+        title.isSkeletonable = true
+
+        title.skeletonTextNumberOfLines = 3
+        title.linesCornerRadius = 5
+        image.skeletonCornerRadius = 20
+    }
+
     // MARK: - Configure
 
     func configure(with card: Card) {
         let placeholder = UIImage(systemName: "photo")?
             .withRenderingMode(.alwaysOriginal)
             .withTintColor(.white)
-        if let imageUrl = card.imageUrl, let url = URL(string: imageUrl) {
+        if let imageUrl = card.imageUrl,
+           let url = URL(string: imageUrl) {
             image.setImage(url: url, placeholder: placeholder)
         } else {
             image.image = placeholder
@@ -122,7 +133,12 @@ final class MagicCardCell: UITableViewCell {
 
         title.text = card.name
 
-        typeRarity.text = "\(card.type), \(card.rarity)"
-        setName.text = "from set: \(card.setName)"
+        if !card.type.isEmpty && !card.rarity.isEmpty {
+            typeRarity.text = "\(card.type), \(card.rarity)"
+        }
+
+        if !card.setName.isEmpty {
+            setName.text = "from set: \(card.setName)"
+        }
     }
 }
