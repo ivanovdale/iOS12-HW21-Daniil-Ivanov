@@ -21,7 +21,8 @@ final class MagicCardsViewController: UIViewController {
             switch (state) {
             case .loading:
                 DispatchQueue.main.async { [weak self] in
-                    self?.startShimmerAnimation()
+                    guard let self else { return }
+                    self.startShimmerAnimation()
                 }
                 tableView.reloadData()
             case .success, .failure:
@@ -43,6 +44,8 @@ final class MagicCardsViewController: UIViewController {
         didSet {
             if cards.count > 0 {
                 state = .success
+            } else {
+                state = .failure
             }
         }
     }
@@ -133,7 +136,7 @@ final class MagicCardsViewController: UIViewController {
         let completion: ObjectEndpointCompletion<Cards> = { result in
             switch result {
             case .success(let result):
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+                DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
                     self.cards = result.cards
                 }
@@ -210,23 +213,7 @@ extension MagicCardsViewController {
 
 extension MagicCardsViewController: UITableViewDataSource {
 
-    // MARK: Header
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = UIView()
-        headerView.backgroundColor = UIColor.clear
-
-        return headerView
-    }
-
-    // Spacing between sections.
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        10
-    }
-
-    // MARK: Sections
-
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch (state) {
         case .loading: return 5
         case .success: return cards.count
@@ -234,18 +221,12 @@ extension MagicCardsViewController: UITableViewDataSource {
         }
     }
 
-    // MARK: Rows
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        1
-    }
-
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MagicCardCell.identifier,
                                                  for: indexPath) as? MagicCardCell
         guard let cell, state != .loading else { return MagicCardCell() }
 
-        let card = cards[indexPath.section]
+        let card = cards[indexPath.row]
         cell.configure(with: card)
 
         return cell
@@ -257,10 +238,16 @@ extension MagicCardsViewController: UITableViewDataSource {
 extension MagicCardsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let magicCardDetailsViewController = MagicCardDetailsViewController()
-        let card = cards[indexPath.section]
+        let card = cards[indexPath.row]
         magicCardDetailsViewController.configure(with: card)
         present(magicCardDetailsViewController, animated: true)
 
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+extension MagicCardsViewController: SkeletonTableViewDataSource {
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        MagicCardCell.identifier
     }
 }

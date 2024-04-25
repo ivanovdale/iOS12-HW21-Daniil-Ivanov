@@ -63,6 +63,13 @@ final class MagicCardCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Lifecycle
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setupInsets()
+    }
+
     // MARK: - Setup
 
     private func setupHierarchy() {
@@ -72,38 +79,47 @@ final class MagicCardCell: UITableViewCell {
     private func setupLayout() {
         image.snp.makeConstraints { make in
             make.leading.equalTo(contentView).offset(10)
-            make.top.equalTo(contentView).inset(10)
-            make.bottom.equalTo(contentView).inset(10)
+            make.top.equalTo(contentView).inset(15)
+            make.bottom.equalTo(contentView).inset(15)
             make.width.equalTo(100)
         }
 
         title.snp.makeConstraints { make in
             make.leading.equalTo(image.snp.trailing).offset(10)
-            make.top.equalTo(contentView).offset(15)
-            make.trailing.equalTo(contentView).offset(-10)
+            make.top.equalTo(contentView).offset(20)
+            make.trailing.equalTo(contentView).offset(-15)
         }
 
         typeRarity.snp.makeConstraints { make in
             make.leading.equalTo(image.snp.trailing).offset(10)
             make.top.equalTo(title.snp.bottom).offset(5)
-            make.trailing.equalTo(contentView).offset(-10)
+            make.trailing.equalTo(contentView).offset(-15)
         }
 
         setName.snp.makeConstraints { make in
             make.leading.equalTo(image.snp.trailing).offset(10)
             make.top.equalTo(typeRarity.snp.bottom).offset(3)
-            make.trailing.equalTo(contentView).offset(-10)
+            make.trailing.equalTo(contentView).offset(-15)
         }
     }
 
     private func setupContentView() {
-        self.layer.cornerRadius = 20
         self.backgroundColor = UIColor(red: 22 / 255, green: 22 / 255, blue: 22 / 255, alpha: 1)
 
         let backgroundView = UIView()
         backgroundView.backgroundColor = .systemGray
         backgroundView.layer.cornerRadius = 20
         self.selectedBackgroundView = backgroundView
+    }
+
+    private func setupInsets() {
+        let verticalPadding: CGFloat = 10
+
+        let maskLayer = CALayer()
+        maskLayer.cornerRadius = 20
+        maskLayer.backgroundColor = UIColor(red: 22 / 255, green: 22 / 255, blue: 22 / 255, alpha: 1).cgColor
+        maskLayer.frame = CGRect(x: bounds.origin.x, y: bounds.origin.y, width: bounds.width, height: bounds.height).insetBy(dx: 0, dy: verticalPadding / 2)
+        layer.mask = maskLayer
     }
 
     private func setupSkeletonableViews() {
@@ -140,5 +156,13 @@ final class MagicCardCell: UITableViewCell {
         if !card.setName.isEmpty {
             setName.text = "from set: \(card.setName)"
         }
+    }
+
+    // MARK: - Reuse
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        typeRarity.text = nil
+        setName.text = nil
     }
 }
