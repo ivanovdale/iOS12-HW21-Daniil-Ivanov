@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 extension UIImageView {
     func setImage(url: URL, placeholder: UIImage?) {
@@ -22,8 +23,11 @@ extension UIImageView {
         }
 
         Task { [weak self] in
+            guard let self else { return }
+            self.showGradientSkeleton()
             let (data, _) = try await URLSession.shared.data(from: url)
-            self?.image = UIImage(data: data)
+            self.image = UIImage(data: data)
+            self.hideSkeleton()
         }
     }
 }

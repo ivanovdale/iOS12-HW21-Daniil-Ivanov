@@ -24,6 +24,7 @@
 		0058C9FF2BD6BEB900006819 /* MagicCardDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0058C9FE2BD6BEB900006819 /* MagicCardDetailsViewController.swift */; };
 		00E8E3642BD8034900009F96 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 00E8E3632BD8034900009F96 /* SnapKit */; };
 		00E8E3672BD8035600009F96 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 00E8E3662BD8035600009F96 /* Alamofire */; };
+		00E8E36A2BD9631400009F96 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 00E8E3692BD9631400009F96 /* SkeletonView */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +53,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00E8E3642BD8034900009F96 /* SnapKit in Frameworks */,
+				00E8E36A2BD9631400009F96 /* SkeletonView in Frameworks */,
 				00E8E3672BD8035600009F96 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -189,6 +191,7 @@
 			packageProductDependencies = (
 				00E8E3632BD8034900009F96 /* SnapKit */,
 				00E8E3662BD8035600009F96 /* Alamofire */,
+				00E8E3692BD9631400009F96 /* SkeletonView */,
 			);
 			productName = "iOS12-HW21-Daniil-Ivanov";
 			productReference = 0019F6792BD00477000D7DCF /* iOS12-HW21-Daniil-Ivanov.app */;
@@ -221,6 +224,7 @@
 			packageReferences = (
 				00E8E3622BD8034900009F96 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				00E8E3652BD8035600009F96 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				00E8E3682BD9631400009F96 /* XCRemoteSwiftPackageReference "SkeletonView" */,
 			);
 			productRefGroup = 0019F67A2BD00477000D7DCF /* Products */;
 			projectDirPath = "";
@@ -499,6 +503,14 @@
 				minimumVersion = 5.9.1;
 			};
 		};
+		00E8E3682BD9631400009F96 /* XCRemoteSwiftPackageReference "SkeletonView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Juanpe/SkeletonView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.31.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -511,6 +523,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 00E8E3652BD8035600009F96 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		00E8E3692BD9631400009F96 /* SkeletonView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 00E8E3682BD9631400009F96 /* XCRemoteSwiftPackageReference "SkeletonView" */;
+			productName = SkeletonView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

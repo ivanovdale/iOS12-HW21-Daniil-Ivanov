@@ -6,9 +6,14 @@
 //
 
 import UIKit
+import SkeletonView
 
 final class MagicCardsViewController: UIViewController {
     let magicCardsService: MagicCardsServiceProtocol
+
+    // MARK: - Loading state
+
+    var isLoading: Bool = true
 
     // MARK: - Data
 
@@ -55,6 +60,7 @@ final class MagicCardsViewController: UIViewController {
         setupLayout()
         setupView()
 
+        generateFakeCards()
         fetchCards()
     }
 
@@ -93,18 +99,33 @@ final class MagicCardsViewController: UIViewController {
 
     // MARK: - Data fetching
 
+    // Need for shimmer animation.
+    private func generateFakeCards() {
+        let fakeCard = Card(name: UUID().uuidString,
+                            manaCost: "",
+                            type: UUID().uuidString,
+                            rarity: UUID().uuidString,
+                            setName: UUID().uuidString,
+                            originalText: "",
+                            imageUrl: "")
+        cards = Array(repeating: fakeCard, count: 20)
+    }
+
     private func fetchCards(by name: String? = nil) {
+        isLoading = true
         let completion: ObjectEndpointCompletion<Cards> = { result in
             switch result {
             case .success(let result):
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
+                    self.isLoading = false
                     self.cards = result.cards
                     self.tableView.reloadData()
                 }
             case .failure(_):
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
+                    self.isLoading = false
                     let alert = UIAlertController(title: "Alert",
                                                   message: "Error occured while loading cards",
                                                   preferredStyle: .alert)
@@ -168,12 +189,30 @@ extension MagicCardsViewController: UITableViewDataSource {
                                                  for: indexPath) as? MagicCardCell
         guard let cell else { return MagicCardCell() }
         let card = cards[indexPath.section]
+
+        if isLoading {
+            let animation = SkeletonAnimationBuilder()
+                .makeSlidingAnimation(withDirection: .leftRight)
+            let color = UIColor(red: 0.882, green: 0.89, blue: 0.914, alpha: 1)
+            let gradient = SkeletonGradient(baseColor: color, secondaryColor: .white)
+            cell.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
+        } else {
+            cell.hideSkeleton()
+        }
+
         cell.configure(with: card)
+
         return cell
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         10
+    }
+}
+
+extension MagicCardsViewController: SkeletonTableViewDataSource {
+    func collectionSkeletonView(_ skeletonView: UITableView, cellIdentifierForRowAt indexPath: IndexPath) -> ReusableCellIdentifier {
+        MagicCardCell.identifier
     }
 }
 
