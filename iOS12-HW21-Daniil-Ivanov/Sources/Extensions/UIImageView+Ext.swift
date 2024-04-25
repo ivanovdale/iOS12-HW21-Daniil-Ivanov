@@ -24,10 +24,23 @@ extension UIImageView {
 
         Task { [weak self] in
             guard let self else { return }
-            self.showGradientSkeleton()
+            self.startShimmerAnimation()
             let (data, _) = try await URLSession.shared.data(from: url)
             self.image = UIImage(data: data)
-            self.hideSkeleton()
+            self.stopShimmerAnimation()
         }
+    }
+
+    private func startShimmerAnimation() {
+        let animation = SkeletonAnimationBuilder()
+            .makeSlidingAnimation(withDirection: .leftRight)
+        let color = UIColor(red: 0.882, green: 0.89, blue: 0.914, alpha: 1)
+        let gradient = SkeletonGradient(baseColor: color, secondaryColor: .white)
+
+        self.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
+    }
+
+    private func stopShimmerAnimation() {
+        self.hideSkeleton()
     }
 }
