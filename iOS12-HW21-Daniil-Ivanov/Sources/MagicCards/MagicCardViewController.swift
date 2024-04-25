@@ -77,7 +77,7 @@ final class MagicCardsViewController: UIViewController {
                            forCellReuseIdentifier: MagicCardCell.identifier)
         tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
         tableView.backgroundColor = .clear
-        tableView.rowHeight = 170
+        tableView.rowHeight = 180
         tableView.showsVerticalScrollIndicator = false
         tableView.sectionHeaderTopPadding = 0
         tableView.isSkeletonable = true
